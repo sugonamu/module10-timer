@@ -68,15 +68,22 @@ impl Executor {
 fn main() {
     let (executor, spawner) = new_executor_and_spawner();
 
-    spawner.spawn(async {
-        println!("howdy from Ade’s Komputer!");
-        TimerFuture::new(Duration::new(2, 0)).await;
-        println!("done!");
-    });
-    
-    println!("Task has been spawned...");
+    // Spawn multiple async timer tasks
+    for i in 1..=3 {
+        let spawner_clone = spawner.clone();
+        let message = format!("Task {}", i);
+        spawner_clone.spawn(async move {
+            println!("{message} started");
+            TimerFuture::new(Duration::new(i, 0)).await;
+            println!("{message} done");
+        });
+    }
 
+    // Print confirmation
+    println!("All tasks have been spawned...");
     drop(spawner);
+    // Run the executor
     executor.run();
 }
+
 
